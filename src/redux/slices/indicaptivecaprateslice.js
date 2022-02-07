@@ -1,5 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {IndicaptiveCapRateList,IndicaptiveCapRateListDelete,EditIndicaptiveCapRateList,CreateIndicaptiveCapRateList} from "../thunks"
+import {
+  IndicaptiveCapRateList,
+  IndicaptiveCapRateListDelete,
+  EditIndicaptiveCapRateList,
+  CreateIndicaptiveCapRateList,
+  IndicaptiveCapRateListByCycleId
+} from "../thunks"
 
 
 const initialState={
@@ -45,6 +51,9 @@ const indicaptiveCapRateSlice=createSlice({
       state.success=true;
       state.error=false;
     }).addCase(CreateIndicaptiveCapRateList.fulfilled, (state, action) => {
+      state.success=true;
+      state.error=false;
+    }).addCase(IndicaptiveCapRateListByCycleId.fulfilled, (state, action) => {
       state.success=true;
       state.error=false;
     })

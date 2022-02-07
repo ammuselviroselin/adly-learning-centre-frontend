@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import axios from "axios";
 import { UserList } from './UserList'
 import "./CreateCycle.css";
 import { ViewIndicativeCapRateHistoryComponentDataTable } from "./IndicativeCapRateHistoryDatatableView.Component";
@@ -10,38 +9,20 @@ import moment from "moment";
 import "./style.css";
 import Select from 'react-dropdown-select'
 import PropTypes from 'prop-types';
-
+import { toast } from "react-toastify";
 import {useDispatch,useSelector} from "react-redux";
-import {createCycle} from "../redux/thunks"
+import {
+  createCycle,
+  ProductListCycleType,
+  CycleTypesDropDownList,
+  FetchSingleCycleFromCycleList,
+  AvailableCycleTypebyID,
+  ProductListCycleTypebyID,
+  editCycle
+} from "../redux/thunks"
 
 function CreateCycle() {
-  // catch the state data from history location
-  // const history = useHistory();
-  /**
-   * If you want to wait for retrieving the data from server, you can use async here.
-   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
-   */
-  // const getData = useCallback(async () => {
-  //   const response = await axios.get(
-  //     //"https://jsonplaceholder.typicode.com/users"
-  //     "http://localhost:4000/users/"
-  //   );
-
-  // const { data } = response;
-  //   setState(data);
-  // }, []);
-  
-  // const handleChange = (event) => {
-  //   // it makes you to handle your state in the parent component.
-  //   // in the MacOS ctrl + cmd + space
-  //   console.log("🔥", event.target.value);
-  //   //setSelectValue(event.target.value);
-  //   const key = event.target.name;
-  //   setState({
-  //     ...state,
-  //     [key]: event.target.value
-  //   });
-  // };
+ 
 
   return (
     <div align="center">
@@ -49,21 +30,7 @@ function CreateCycle() {
         <CreateCycleManagementForm></CreateCycleManagementForm>
       </div>
       <br></br>
-      {/*<div  style={{marginTop:'10px',marginLeft:'5px'}}>
-        <label for="userDetails">
-          <b>User Details : &nbsp;</b>
-        </label>
-        <ListUserComponent
-          data={state}
-          value={ourSelectValue}
-          onChange={handleChange}
-  /> */}
-         
-     {/*}   <div>
-      <Link to='/list-cycle-status-log'>Cycle Log Details </Link>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <Link to='/users-details'>List of Users</Link>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      </div>*/}
-       {/* </div> */}
+   
     </div>
   );
 }
@@ -73,22 +40,27 @@ export default CreateCycle;
 function CreateCycleManagementForm(props) {
   // This is used for dispatching the action like an api call
  
-  const {cycleType}=useSelector(state=>state.selectedcycletype); 
-  const {productType}=useSelector(state=>state.selectproductType); 
+ // const {cycleType}=useSelector(state=>state.selectedcycletype); 
+  // const {productType}=useSelector(state=>state.selectproductType); 
+  const {setcyclestatus} =useSelector(state=>state.selectedcycletype);
+  const [isedit, setIsedit] = useState(false);
+  const [ComboCycleId, setComboCycleId] = useState('');
+  const [ComboProductId, setComboProductId] = useState('');
+  console.log(setcyclestatus);
   const dispatch=useDispatch();
   const [selectedCycle, setSelectedCycle] = useState('');
   const [SelectProductType, setSelectProductType] = useState('');
   const [Cycledata, setCycledata] = useState([]);
   const [ProductData, setProductData] = useState([]);
   const {cycleList}=useSelector(state=>state.cycleSlice);  // From redux useSelctor same as the name given in store
-
+  const [CycleId, setCycleId] = useState('')
   // if you have a initialData use this one,
-  //  const [initaildata, setInitaildata] = useState({});
+
 const defaultData = {
-  productTypes: cycleType,
-  availableCycleTypes: productType,
+  productTypes: ComboProductId,
+  availableCycleTypes: ComboCycleId,
   finalCapRate: 1,
-  status: "PrePublished",
+  status: "613f09778c62eb3b9c8079b2",
   statusDate: "",
   internalFundID: 1,
   cycleName:"",
@@ -99,58 +71,78 @@ const defaultData = {
 };
 console.log('defalut'+defaultData.availableCycleTypes,defaultData.productTypes)
 const [state, setState] = useState(defaultData);
+
 console.log(cycleList);
 // console.log('cycel'+selectedCycle,'product'+SelectProductType)
   useEffect(() => {
    const queryParams = new URLSearchParams(window.location.search);
    const _id = queryParams.get('id');
+   setCycleId(_id);
+   
    const cycleName = queryParams.get('cycleName');
    console.log(cycleName,_id);
    if(_id){
-     axios.get('http://localhost:4000/cycleList/getsinglecycle/'+_id).then((response) => {
-         console.log( response.data);
-         setState(response.data);
-         setSelectedCycle(response.data.availableCycleTypes);
-         setSelectProductType(response.data.productTypes);
-     }).catch((error) => {console.log(error)});
+    setIsedit(true);
+    dispatch(FetchSingleCycleFromCycleList(_id)).then((res) =>{
+           console.log(res);
+           setState(res.payload);
+          
+          // setSelectProductType(res.payload.productTypes);
+        //  dispatch({ type: 'cycleidfromcyclelist', payload: res.payload._id })
+          dispatch({ type: 'cyclestatusid', payload: res.payload.status });
+
+          dispatch(AvailableCycleTypebyID(res.payload.availableCycleTypes)).then((res)=>{
+            console.log(res);
+            setSelectedCycle(res.payload.Description);
+          });
+          dispatch(ProductListCycleTypebyID(res.payload.productTypes)).then((res)=>{
+            console.log(res);
+            setSelectProductType(res.payload[0].Product);
+          });
+         
+      });
+     
    }
-}, [SelectProductType]);
-  // otherwise, use the default data
-  // object shcema should be same, they have to have same keys.
+   return ()=>{
+     dispatch({ type: 'cyclestatusid', payload: '' })
+     dispatch({ type: 'navigationtab', payload: 0})
+   }
+}, [SelectProductType,dispatch]);
+
   const getProductData = useCallback(async() => {
-    const res = await axios.get("http://localhost:4000/product/")
-    const data = res.data
-    setProductData(data);
-  }, []);
+  
+    dispatch(ProductListCycleType()).then((res) =>{
+      console.log(res.payload);
+      setProductData(res.payload);
+      });
+  }, [dispatch]);
 
   const getCycleTypes = useCallback(async() => {    
-    const res = await axios.get("http://localhost:4000/availableCycleTypes/")
-    console.log(  res.data);
-    setCycledata( res.data);
-  }, []);
+   
+    dispatch(CycleTypesDropDownList()).then((res) =>{
+      console.log(res.payload);
+      setCycledata(res.payload);
+      });
+  }, [dispatch]);
 
   useEffect(() => {
     getProductData();
-    console.log("🔥", getProductData());
     getCycleTypes();
-    console.log("🔥🔥", getCycleTypes());
+       
   }, [getProductData, getCycleTypes]);
 
   const butttonState = {
     button: 1
   };
-  // ... -> Spread Operator.
-  // copy the Object
-  // const [state, setState] = useState(
-  //   initaildata ? { ...defaultData, ...initaildata } : defaultData
-  // );
+ 
  
 //get cycle type functions to get dynamic options value
   const SelectCycletype=()=>{
     const  options = () =>
     Cycledata.map(user => ({
       label: user.Description,
-      value: user.Description
+      value: user.Description,
+      id: user._id
     }));
 
     return <Select 
@@ -158,8 +150,10 @@ console.log(cycleList);
     placeholder={selectedCycle==='' ?"Select Cycle Type":selectedCycle}
       value={selectedCycle}
        onChange={(value)=>{
+         console.log(value);
       setSelectedCycle(value[0].value)
-      dispatch({ type: 'setcycletype', payload: value[0].value})
+      setComboCycleId(value[0].id)
+     // dispatch({ type: 'setcycletype', payload: value[0].id})
     }}
      options={options()} />
 
@@ -169,7 +163,8 @@ console.log(cycleList);
   const  options = () =>
   ProductData.map(user => ({
     label: user.Product,
-    value: user.Product
+    value: user.Product,
+    id: user._id
   }));
 
   return <Select 
@@ -177,27 +172,13 @@ console.log(cycleList);
      value={SelectProductType}
       onChange={(value)=>{
         setSelectProductType(value[0].value)
-        dispatch({ type: 'productType', payload: value[0].value})
+        setComboProductId(value[0].id)
+        // dispatch({ type: 'productType', payload: value[0].id})
       }}
        options={options()} />
   }
   
-/*const   handleChangeProduct=(event)=>{
-  setState({...state,availableCycleTypes:event.value});
-}
-const handleChangeCycleTypes = (event) => {
-   
-  setState({...state,cycleTypes:event.value});
-  console.log('Selected value '+event.target.value);
 
-  //const key = event.target.name;
-/*
-  setState({
-    ...state,
-    [key]: event.target.value,
-  });
-  */
-/*};*/
 
 const handleTextFieldChange=(event )=>{
   setState({...state,[event.target.name]:event.target.value})
@@ -217,6 +198,71 @@ const IndicativeCapRateHistoryDetails = () => {
     );
 };
 
+const createnewCycle =(event)=>{
+
+  event.preventDefault();  
+     
+  alert(
+    `Start Date = ${state.startDate} Maturity Date = ${state.maturityDate} Final Cap Rate = ${state.finalCapRate} Product = ${ComboProductId} AvailableCycle Types = ${ComboCycleId} Status = ${state.status}`
+  );
+  const cycleObject = {
+  productTypes:ComboProductId,
+  availableCycleTypes:ComboCycleId,
+  startDate: state.startDate,
+  maturityDate: state.maturityDate,
+  finalCapRate: state.finalCapRate,
+  status:state.status,
+  statusDate: state.statusDate,
+  internalFundID: state.internalFundID,
+  cusip: state.cusip,
+  cycleName: state.cycleName,
+};
+console.log(cycleObject);
+// calling dispatch and dispatching the createCycle action
+dispatch(createCycle(cycleObject)).then(data=>{
+
+setState({
+productTypes: 1,
+availableCycleTypes: 1,
+finalCapRate: 1,
+cycleName:"",
+status: "613f09778c62eb3b9c8079b2",
+statusDate: "",
+internalFundID: 1,
+cusip: "",
+startDate: moment().utcOffset("+05:30").format("YYYY-MM-DD hh:mm:ss a"),
+maturityDate: moment().utcOffset("+05:30").format("YYYY-MM-DD hh:mm:ss a"),
+});
+alert("Created SuccessFully")
+})
+
+}
+
+const updatecycle=(event) => {
+
+  event.preventDefault();  
+  const updatecycle = {
+    _id:CycleId,
+    productTypes:ComboProductId,
+    availableCycleTypes:ComboCycleId,
+    startDate: state.startDate,
+    maturityDate: state.maturityDate,
+    finalCapRate: state.finalCapRate,
+    status:state.status,
+    statusDate: state.statusDate,
+    internalFundID: state.internalFundID,
+    cusip: state.cusip,
+    cycleName: state.cycleName,
+  };
+  console.log(updatecycle);
+  dispatch(editCycle(updatecycle)).then((data) => {
+    if (data.payload === "OK") {
+      toast.success(
+        "Updated Cycle Data Successfully!"
+      );
+    }
+  });
+}
 const handleSubmit = (event) => {
     console.log(state.productTypes)
     // we have to submit all the values
@@ -234,53 +280,14 @@ const handleSubmit = (event) => {
       <IndicativeCapRateHistoryDetails></IndicativeCapRateHistoryDetails>
     }  
     else {
-      event.preventDefault();  
      
-      alert(
-        `Start Date = ${state.startDate} Maturity Date = ${state.maturityDate} Final Cap Rate = ${state.finalCapRate} Product = ${productType} AvailableCycle Types = ${cycleType} Status = ${state.status}`
-      );
-      const cycleObject = {
-      productTypes:productType,
-      availableCycleTypes:cycleType,
-      startDate: state.startDate,
-      maturityDate: state.maturityDate,
-      finalCapRate: state.finalCapRate,
-      status: state.status,
-      statusDate: state.statusDate,
-      internalFundID: state.internalFundID,
-      cusip: state.cusip,
-      cycleName: state.cycleName,
-    };
-    console.log(cycleObject);
-  // calling dispatch and dispatching the createCycle action
-  dispatch(createCycle(cycleObject)).then(data=>{
-
-  setState({
-    productTypes: 1,
-    availableCycleTypes: 1,
-    finalCapRate: 1,
-    cycleName:"",
-    status: "PrePublished",
-    statusDate: "",
-    internalFundID: 1,
-    cusip: "",
-    startDate: moment().utcOffset("+05:30").format("YYYY-MM-DD hh:mm:ss a"),
-    maturityDate: moment().utcOffset("+05:30").format("YYYY-MM-DD hh:mm:ss a"),
-  });
-  alert("Created SuccessFully")
-  })
  }
 };
 
   return (
     <div className="container"  style={{marginTop:'10px'}}>
       <form onSubmit={handleSubmit}>
-        {/*<style>
-          a:link {color:green; background-color:transparent; text-decoration:none}
-          a:visited {color:pink; background-color:transparent; text-decoration:none}
-          a:hover {color:red; background-color:transparent; text-decoration:underline}
-          a:active {color:yellow; background-color:transparent; text-decoration:underline}
-      </style>*/}
+
       <div>
           <br></br>
             <button
@@ -319,7 +326,9 @@ const handleSubmit = (event) => {
               onClick={event =>  window.location.href='/create-indicativeCapHistory-cycle'}>
               + Indicative Cap Rate
             </button>
-            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
+            {isedit?
+              <>
+                &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
             <button
               type="submit"
               className="btn btn-success btn-block"
@@ -328,16 +337,41 @@ const handleSubmit = (event) => {
                 border: "1px solid black",
                 borderRadius: "10px",
                 fontSize: "14px",
-                width: "80px",
+                width: "150px",
                 height: "30px",
                 color: "white",
               }}
               name="save"
               value="save1"
-              onClick={() => (butttonState.button = 2)}
+              onClick={updatecycle}
             >
-              Update
+              Update Cycle
             </button>
+              </>
+              :
+              <>
+                &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
+            <button
+              type="submit"
+              className="btn btn-success btn-block"
+              style={{
+                backgroundColor: "#194ba88a",
+                border: "1px solid black",
+                borderRadius: "10px",
+                fontSize: "14px",
+                width: "150px",
+                height: "30px",
+                color: "white",
+              }}
+              name="save"
+              value="save1"
+              onClick={createnewCycle}
+            >
+              Create Cycle
+            </button>
+              </>
+            }
+            
             &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
             <button
               type="submit"
@@ -386,8 +420,6 @@ const handleSubmit = (event) => {
                 <label for="availableCycleType">
                 Cycle Types : &nbsp;  
                 </label>
-                {/* <Select options={optionsCycleTypes}
-                 onChange={handleChange}/> */}
                  <br/>
                 <SelectCycletype/>
                 </td>
@@ -430,7 +462,7 @@ const handleSubmit = (event) => {
               type="text"
               name="status"
               disabled="true"
-              value={state.status}
+              value={state.status==='613f09778c62eb3b9c8079b2'?'PrePublished':'Published'}
               onChange={handleTextFieldChange}
               size ="15"
             />
@@ -481,28 +513,24 @@ const handleSubmit = (event) => {
           </div>
         <br></br>
         <div>
-        <table width = "75%">
+        <table width = "100%">
           <tr>
-            <td width= "40%">  
+            <td width= "50%">  
             <div align="center">
             <b> Indicative Cap Rate History </b>
-            <ViewIndicativeCapRateHistoryComponentDataTable></ViewIndicativeCapRateHistoryComponentDataTable>
+            <ViewIndicativeCapRateHistoryComponentDataTable id={CycleId}></ViewIndicativeCapRateHistoryComponentDataTable>
             </div>
           </td>
-          <td width="3%"> </td>
-          <td width="42%">
+          <td width="1%"> </td>
+          <td width="50%">
           <div align="center">
           <b>Cycle Status </b>
-          <ViewCycleStatusComponentDataTable></ViewCycleStatusComponentDataTable>
+          <ViewCycleStatusComponentDataTable  ></ViewCycleStatusComponentDataTable>
           </div>
           </td>
            </tr>
           </table>
-          {/*<ListIndicativeCapRateHistoryComponent buttonVisible="false"></ListIndicativeCapRateHistoryComponent>*/}
-         {/* <div>
-            <CycleListDatatableComponent></CycleListDatatableComponent>
-            <CycleStatusList buttonVisible="false"> </CycleStatusList>
-         </div>*/}
+  
       </div> 
       </form>
     </div>

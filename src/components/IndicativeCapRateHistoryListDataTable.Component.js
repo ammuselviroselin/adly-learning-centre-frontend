@@ -26,10 +26,13 @@ export const ListIndicativeCapRateHistoryComponentDataTable = (props) => {
     [dispatch]
   );
 
+ 
 
   useEffect(() => {
     getcycletype();
   }, [IndicaptiveList,getcycletype]);
+
+  
 
   const columns = [
     props.search === "false"
@@ -52,17 +55,14 @@ export const ListIndicativeCapRateHistoryComponentDataTable = (props) => {
       : {},
     {
       title: "Cycle ID",
-      field: "cycleID",
-      cellStyle: {
-        fontSize: "14px",
-      },
+      field: "cyclebyname",
+      editable: 'never'
     },
     {
       title: "Effective Date",
       field: "effectiveDate",
       render: (rowData) => {
         const options = { year: "numeric", month: "long", day: "numeric" };
-        //return new Date(rowData.startDate).toLocaleDateString(undefined, options)+'   '+new Date(rowData.startDate).toLocaleTimeString()} ,editable: 'never',
         return new Date(rowData.effectiveDate).toLocaleDateString(
           undefined,
           options
@@ -120,20 +120,7 @@ export const ListIndicativeCapRateHistoryComponentDataTable = (props) => {
                     toast.success("Updated Cycle Data Successfully!");
                   }
                 });
-                //   const dataUpdate = [...indicaptivelist];
-                // const index = oldData.tableData.id;
-
-                //   dataUpdate[index] = newData;
-                //   setUser(dataUpdate);
-
-                //   indicaptivelist[indicaptivelist.indexOf(oldData)] = newData;
-
-                // axios.put('http://localhost:4000/indicativeCapRateHistory/update/'+newData._id,newData)
-                // .then(res=>{
-                //   if(res.status===200){
-                //   toast.success('Updated Indicative Cap Rate Successfully');
-                //   }
-                // });
+                
 
                 resolve();
               }, 1000);
@@ -157,28 +144,7 @@ export const ListIndicativeCapRateHistoryComponentDataTable = (props) => {
               }, 1000);
             });
           },
-          //     onRowDelete:  (newData, oldData) =>
-          //     new Promise(resolve => {
-          //         setTimeout(() => {
-          //           // indicaptivelist[indicaptivelist.indexOf(oldData)] = newData;
-          //           // const dataDelete = [...indicaptivelist];
-
-          //           // var elementPos = dataDelete.map(function(x) {return x._id; }).indexOf(newData._id);
-
-          //           // dataDelete.splice(elementPos, 1);
-          //           // setUser([...dataDelete]);
-
-          //             axios.delete(`http://localhost:4000/indicativeCapRateHistory/delete/${newData._id}`)
-          //             .then(res=>{
-          //               if(res.status===200){
-
-          //                 toast.success('Deleted Indicative Cap Rate Successfully');
-          //               }
-          //             }).catch(err=>console.log(err));
-          //             resolve();
-
-          //     }, 1000);
-          // }),
+         
         }}
         data={indicaptivelist}
       />

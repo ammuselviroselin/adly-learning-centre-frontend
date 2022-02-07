@@ -2,46 +2,43 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import "./style.css";
 import MaterialTable from 'material-table'
-// import { toast } from 'react-toastify';
-// import { withWidth } from "@material-ui/core";
 
-export const ViewIndicativeCapRateHistoryComponentDataTable = (buttonVisible) => {
-  const [, setState] = useState();
-  const [user, setUser]= useState();
-  /**
-   * If you want to wait for retrieving the data from server, you can use async here.
-   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
-   */
+export const ViewIndicativeCapRateHistoryComponentDataTable = (props) => {
+  const [IndicaptiveList, setIndicaptiveList] = useState();
+
   const getData = useCallback(async () => {
     const response = await axios.get(
       "http://localhost:4000/indicativeCapRateHistory/"
     );
     const { data } = response;
-    setState(data);
-    setUser(data);
-  }, []);
+    setIndicaptiveList(data);
 
+  }, []);
+  const getDatabyid = useCallback(async () => {
+    const response = await axios.get(
+      `http://localhost:4000/indicativeCapRateHistory/capratebycycleid/${props.id}`
+    );
+    const { data } = response;
+    setIndicaptiveList(data);
+
+  }, [props.id]);
+
+ 
   useEffect(() => {
-    getData();
-  }, [getData]);
+
+    if(props.id){
+      getDatabyid();
+    }else{
+      getData();
+    }
+  
+
+}, [getData,getDatabyid,props.id]);
 
  const columns = [
 
-    { title: "Id", field: "cycleID", 
-      cellStyle : {
-        fontSize : '14px',
-        width: '3px',
-        maxWidth: '3px',
-        whiteSpace: 'nowrap'
-      }, 
-      headerStyle: {
-        width:'3px',
-        maxWidth:'3px',
-        whiteSpace: 'nowrap'
-      }
-    },
+  
     { title: "Effective Date", field: "effectiveDate", render: rowData=>{ const options = { year: "numeric", month: "long", day: "numeric" }
-    //return new Date(rowData.startDate).toLocaleDateString(undefined, options)+'   '+new Date(rowData.startDate).toLocaleTimeString()} ,editable: 'never',
     return new Date(rowData.effectiveDate).toLocaleDateString(undefined, options)} ,editable: 'never',
     cellStyle : {
       fontSize : '14px',
@@ -97,7 +94,7 @@ export const ViewIndicativeCapRateHistoryComponentDataTable = (buttonVisible) =>
                                              tableLayout: "fixed"
                                             }
                                           }
-                                          data={ user  }
+                                          data={ IndicaptiveList  }
                                         />
               </div>
    

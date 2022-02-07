@@ -1,5 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {CycleTypeList,CycleTypeListDelete,EditCycleListType,createvailableCycleType,ProductListCycleType} from "../thunks"
+import {
+  CycleTypeList,
+  CycleTypeListDelete,
+  EditCycleListType,
+  createvailableCycleType,
+  ProductListCycleType,
+  CycleTypesDropDownList,
+  CycleStatus,
+  CycleStatusbyId,
+  ProductListCycleTypebyID,
+  AvailableCycleTypebyID
+} from "../thunks"
 
 
 const initialState={
@@ -51,6 +62,21 @@ const cycleTypeSlice=createSlice({
       state.success=true;
       state.error=false;
     }).addCase(ProductListCycleType.fulfilled, (state, action) => {
+      state.success=true;
+      state.error=false;
+    }).addCase(CycleTypesDropDownList.fulfilled, (state, action) => {
+      state.success=true;
+      state.error=false;
+    }).addCase(CycleStatus.fulfilled, (state, action) => {
+      state.success=true;
+      state.error=false;
+    }).addCase(CycleStatusbyId.fulfilled, (state, action) => {
+      state.success=true;
+      state.error=false;
+    }).addCase(ProductListCycleTypebyID.fulfilled, (state, action) => {
+      state.success=true;
+      state.error=false;
+    }).addCase(AvailableCycleTypebyID.fulfilled, (state, action) => {
       state.success=true;
       state.error=false;
     })

@@ -15,6 +15,7 @@ export const IndicativeCapRateHistoryForm = ({onSubmit} , buttonVisible) => {
   const dispatch = useDispatch();
   const [state, setState] = useState(defaultData);
   const {initialState} =useSelector(state=>state.indicativecapratehistroy);
+  const {capratehistoryforcycleid} =useSelector(state=>state.indicativecapratehistroy);
   console.log(initialState);
   useEffect(() => {
     if(initialState){
@@ -38,7 +39,7 @@ const handleTextFieldChange=(event )=>{
       if(initialState){
         const indicativeCapRateHistoryObject = {
           _id:initialState._id,
-          cycleID: "1",
+          cycleID: capratehistoryforcycleid._id,
           effectiveDate: state.effectiveDate,
           indicativeCapRate: state.indicativeCapRate,
       };
@@ -56,7 +57,8 @@ const handleTextFieldChange=(event )=>{
 const clearformdata=()=>{
   dispatch({ type: "setdata", payload: '' });
   setState({
-    cycleID: "1",
+    cycleID: "",
+    cyclebyname:'',
     effectiveDate: moment().utcOffset("+05:30").format("YYYY-MM-DD hh:mm:ss a"),
     indicativeCapRate: ''
   });
@@ -65,7 +67,8 @@ const clearformdata=()=>{
 const handleSubmit = () => {
   
     const indicativeCapRateHistoryObject = {
-        cycleID: "1",
+        cycleID: capratehistoryforcycleid._id,
+        cyclebyname:capratehistoryforcycleid.cycleName,
         effectiveDate: state.effectiveDate,
         indicativeCapRate: state.indicativeCapRate,
     };
@@ -78,13 +81,7 @@ const handleSubmit = () => {
           indicativeCapRate: ''
         });
     });
-    // axios.post('http://localhost:4000/indicativeCapRateHistory/create', indicativeCapRateHistoryObject)
-    // .then((res) => {
-    //   console.log(res.data)
-    // }).catch((error) => {
-    //   console.log(error)
-    // });
-    // alert('Indicative Cap Rate History Transaction submitted successfully');
+ 
     
   }
 

@@ -4,8 +4,8 @@ import Select from 'react-dropdown-select'
 import {useDispatch,useSelector} from "react-redux";
 import { useState} from 'react';
 import { toast } from "react-toastify";
-import {EditCycleListType,createvailableCycleType,ProductListCycleType} from "../redux/thunks";
-import axios from "axios";
+import {EditCycleListType,createvailableCycleType,ProductListCycleType,ProductListCycleTypebyID} from "../redux/thunks";
+
 
 export const TermQualifier = () => {
   return <select name="cycleTypes">
@@ -15,7 +15,7 @@ export const TermQualifier = () => {
 }
 
 
-export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
+export const CreateCycleTypeForm = (props) => {
 
   const {editcycletype} =useSelector(state=>state.editcycletypeselection);
   const {productType} =useSelector(state=>state.selectproductType);
@@ -23,15 +23,26 @@ export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
   const [SelectProductType, setSelectProductType] = useState('');
   const dispatch=useDispatch();
   const getProductData = useCallback(async() => {
-   // const res = await axios.get("http://localhost:4000/product/")
-    dispatch(ProductListCycleType()).then((res) =>{
 
-    console.log(res.payload);
-    setProductData(res.payload);
-    });
+      if(editcycletype){
+        dispatch(ProductListCycleTypebyID(editcycletype.ProductFamilyId)).then((res) =>{
+        
+        //  setProductData(res.payload);
+          setSelectProductType(res.payload[0].Product);
+          dispatch({ type: 'productType', payload:editcycletype.ProductFamilyId})
+          //  console.log(res.payload[0].Product);
+          });
+      }
+
+
+        dispatch(ProductListCycleType()).then((res) =>{
+         // console.log(res.payload);
+          setProductData(res.payload);
+          });
+      
     
    
-  }, [dispatch]);
+  }, [dispatch,editcycletype]);
 
   const SelectedProdductType=()=>{
     const  options = () =>
@@ -73,6 +84,24 @@ export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
   console.log(formState)
   console.log(editcycletype);
   
+  const clearformdata=()=>{
+    setSelectProductType('');
+    dispatch({ type: 'seteditcycle', payload: '' })
+    setFormState({
+      Description:"",
+      Term:"",
+      TermQualifier:"Years",
+      Structure:"Floor",
+      StructureRate:"",
+      CapRateThreshold:"",
+      Status:"Available",
+      ReferenceCode:""
+    });
+    // dispatch({ type: 'hyperlink', payload: false})
+    dispatch({ type: 'navigationtab', payload: 0});
+  }
+
+
   useEffect(() => {
     getProductData()
    
@@ -90,9 +119,11 @@ export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
         ProductFamilyId: editcycletype.ProductFamilyId,
       })
     }
+      return ()=>{
+        dispatch({ type: 'seteditcycle', payload: '' })
+      }
    
-   
-  }, [editcycletype,getProductData]);
+  }, [editcycletype,getProductData,dispatch]);
   const handleSubmit = (event) => {
     event.preventDefault();
     
@@ -105,23 +136,18 @@ export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
         CapRateThreshold:formState.CapRateThreshold,
         Status:formState.Status,
         ReferenceCode:formState.ReferenceCode,
-        ProductFamilyId:productType? productType:''
+        ProductFamilyId:productType? productType:'',
+        ProductFamilybyname:SelectProductType
     };
-  //  alert(`Description = ${formState.Description.value} and Term = ${formState.Term.value}`);  
+
   console.log(cycleTypeObject) ;
-    // axios.post('http://localhost:4000/availableCycleTypes/create', cycleTypeObject)
-    // .then((res) => {
-    //   console.log(res.data)
-    // }).catch((error) => {
-    //   console.log(error)
-    // });
+   
     dispatch(createvailableCycleType(cycleTypeObject)).then((data) => {
       console.log(data)
       if (data.payload._id) {
         toast.success("Created Cycle Data Successfully!");
       }
     });
-    //alert('Cycle Type submitted successfully');
     setFormState({
       Description:"",
       Term:"",
@@ -132,6 +158,8 @@ export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
       Status:"Available",
       ReferenceCode:""
     });
+
+
   }
 
   const handleupdatedatacycletype=()=>{
@@ -146,12 +174,12 @@ export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
           CapRateThreshold:formState.CapRateThreshold,
           Status:formState.Status,
           ReferenceCode:formState.ReferenceCode,
-          ProductFamilyId:productType? productType:''
+          ProductFamilyId:productType? productType:'',
+          ProductFamilybyname:SelectProductType
       };
         dispatch(EditCycleListType(cycleTypeObject)).then((data) => {
           clearformdata();
           dispatch({ type: 'seteditcycle', payload: '' })
-        //  setCycleData(JSON.parse(JSON.stringify([])));
           if (data.payload === "OK") {
             toast.success(
               "Updated Cycle Data Successfully! , Cycle Description : " +
@@ -164,20 +192,7 @@ export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
       }
   }
 
-  const clearformdata=()=>{
-    setSelectProductType('');
-    dispatch({ type: 'seteditcycle', payload: '' })
-    setFormState({
-      Description:"",
-      Term:"",
-      TermQualifier:"Years",
-      Structure:"Floor",
-      StructureRate:"",
-      CapRateThreshold:"",
-      Status:"Available",
-      ReferenceCode:""
-    });
-  }
+ 
 
   const handleChange = (event) => {
     //   // do your code here
@@ -195,9 +210,22 @@ export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
     
        <div>  
          {
-           !editcycletype?
-            <>
-               <button type="button" className="btn btn-success" style={
+         props.edit==='true'?
+           <>
+           <button type="button" className="btn btn-success"  style={
+            {backgroundColor:'#194ba88a',
+              border:'1px solid black',
+              borderRadius:'10px',
+              fontSize: 15,
+              width:'100px',
+              height:'30px',color: 'white'}}
+              onClick={handleupdatedatacycletype}
+      name="btn" value="update"> Update </button>   &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
+       
+          </>
+           :
+           <>
+            <button type="button" className="btn btn-success" style={
        {backgroundColor:'#194ba88a',
         border:'1px solid black',
         borderRadius:'10px',
@@ -207,25 +235,10 @@ export const CreateCycleTypeForm = ({onSubmit} , buttonVisible) => {
         onClick={handleSubmit}
         value="ädd"> +
          Cycle Type</button>  &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
-            </>
-           :null
+           </>
+           
          }
-     
-          {
-            editcycletype?
-            <>
-             <button type="button" className="btn btn-success"  style={
-              {backgroundColor:'#194ba88a',
-                border:'1px solid black',
-                borderRadius:'10px',
-                fontSize: 15,
-                width:'100px',
-                height:'30px',color: 'white'}}
-                onClick={handleupdatedatacycletype}
-        name="btn" value="update"> Update </button>   &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
-            </>:null
-          }
-     
+         
      
       <button type="button" className="btn btn-success" style={
        {backgroundColor:'#194ba88a',

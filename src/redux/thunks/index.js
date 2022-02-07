@@ -20,10 +20,20 @@ export const fetchCycleList= createAsyncThunk(
  return response.data;
     
     }
-
-// Create Cycle Thunk
-
   )
+  // cycleList/getsinglecycle/ fetching single record
+  export const FetchSingleCycleFromCycleList= createAsyncThunk(
+    'cycleSlice/FetchSingleCycleFromCycleList',
+    async (_id) => {
+        /// Our api 
+ const response= await  axios.get(`${process.env.REACT_APP_URL}/cycleList/getsinglecycle/`+_id);
+//  console.log(response);
+ return response.data;
+    
+    }
+  )
+
+  ///////////////////////////////////////////////
 
 
   // Editing cycle
@@ -86,6 +96,7 @@ return response.data;
   
   }
 )
+// product cycle types list and drop down list-item
 export const ProductListCycleType=createAsyncThunk(
   'cycleTypeSlice/productListCycleType',
   async () => {
@@ -95,6 +106,58 @@ return response.data;
   
   }
 )
+///////////////////////
+export const AvailableCycleTypebyID=createAsyncThunk(
+  'cycleTypeSlice/AvailableCycleTypebyID',
+  async (id) => {
+const response= await  axios.get(`${process.env.REACT_APP_URL}/availableCycleTypes/cycylebyid/${id}`);
+//console.log(response.data)
+return response.data;
+
+  }
+)
+
+export const ProductListCycleTypebyID=createAsyncThunk(
+  'cycleTypeSlice/ProductListCycleTypebyID',
+  async (id) => {
+const response= await  axios.get(`${process.env.REACT_APP_URL}/product/productbyid/${id}`);
+//console.log(response.data)
+return response.data;
+  
+  }
+)
+///////////////////
+export const CycleTypesDropDownList=createAsyncThunk(
+  'cycleTypeSlice/CycleTypesDropDownList',
+  async () => {
+const response= await  axios.get(`${process.env.REACT_APP_URL}/availableCycleTypes/`);
+console.log(response.data)
+return response.data;
+  
+  }
+)
+//////////////////////////////////////////////
+
+export const CycleStatus=createAsyncThunk(
+  'cycleTypeSlice/CycleStatus',
+  async () => {
+const response= await  axios.get(`${process.env.REACT_APP_URL}/cycleStatus/`);
+console.log(response.data)
+return response.data;
+  
+  }
+)
+export const CycleStatusbyId=createAsyncThunk(
+  'cycleTypeSlice/CycleStatusbyId',
+  async (id) => {
+const response= await  axios.get(`${process.env.REACT_APP_URL}/cycleStatus/getsinglecyclestatus/`+id);
+console.log(response.data)
+return response.data;
+  
+  }
+)
+
+////////////////////////////////////////
 export const editCycleType=createAsyncThunk(
   'cycleTypeSlice/editCycle',
   async (data) => {
@@ -147,6 +210,15 @@ const response= await  axios.get(`${process.env.REACT_APP_URL}/indicativeCapRate
 return response.data;
 }
 )
+////////////////////////////////
+export const IndicaptiveCapRateListByCycleId= createAsyncThunk(
+  'indicaptiveSlice/IndicaptiveCapRateListByCycleId',
+  async (id) => {
+const response= await  axios.get(`${process.env.REACT_APP_URL}/indicativeCapRateHistory/capratebycycleid/${id}`);  // api call to the backend
+return response.data;
+}
+)
+/////////////////////////
 export const IndicaptiveCapRateListDelete=createAsyncThunk(
   'indicaptiveSlice/deleteindicaptiveSlice',
   async (id) => {

@@ -1,32 +1,38 @@
-import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+
+import { useEffect, useState } from "react";
 import "./style.css";
 import MaterialTable from 'material-table'
-// import { toast } from 'react-toastify';
-// import { withWidth } from "@material-ui/core";
+import {useDispatch,useSelector} from "react-redux";
+import {CycleStatus,CycleStatusbyId} from "../redux/thunks"
 
-export const ViewCycleStatusComponentDataTable = (buttonVisible) => {
-  const [, setState] = useState();
-  const [user, setUser]= useState();
-  /**
-   * If you want to wait for retrieving the data from server, you can use async here.
-   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
-   */
-  const getData = useCallback(async () => {
-    const response = await axios.get(
-      "http://localhost:4000/cycleStatus/"
-    );
-    const { data } = response;
-    setState(data);
-    setUser(data);
-  }, []);
 
+export const ViewCycleStatusComponentDataTable = () => {
+
+  
+
+  const [cyclestatus, setcyclestatus] = useState();
+  const {cyclestatusid} =useSelector(state=>state.selectedcycletype);
+  const dispatch=useDispatch();
+  
+  
   useEffect(() => {
-    getData();
-  }, [getData]);
+
+      if(cyclestatusid){
+        dispatch(CycleStatusbyId(cyclestatusid)).then((res) =>{
+          setcyclestatus(res.payload);
+           });
+      }else{
+        dispatch(CycleStatus()).then((res) =>{
+          setcyclestatus(res.payload);
+           });
+      }
+    
+  
+  }, [dispatch,cyclestatusid]);
 
  const columns = [
-    { title: "Status", field: "status",
+  
+    { title: "Status", field: "name",
       cellStyle : {
         fontSize : '14px',
         width: '10px',
@@ -39,22 +45,6 @@ export const ViewCycleStatusComponentDataTable = (buttonVisible) => {
         whiteSpace: 'nowrap'
       }
     },
- { title: "Status Date", field: "statusDate", render: rowData=>{ const options = { year: "numeric", month: "long", day: "numeric" }
- //return new Date(rowData.startDate).toLocaleDateString(undefined, options)+'   '+new Date(rowData.startDate).toLocaleTimeString()} ,editable: 'never',
- return new Date(rowData.statusDate).toLocaleDateString(undefined, options)} ,editable: 'never',
- 
- cellStyle : {
-   fontSize : '14px',
-   width: '30px',
-   maxWidth: '30px',
-   whiteSpace: 'nowrap'
- },
- headerStyle: {
-   width:'30px',
-   maxWidth:'30px',
-   whiteSpace: 'nowrap'
- }
-} ,
 { title: "Description", field: "description",
 cellStyle : {
   fontSize : '14px',
@@ -75,8 +65,6 @@ headerStyle: {
     <br/>
     <MaterialTable
                                           columns={columns}
-                                          //maxWidth = "70%"
-                                         // width ="70%"
                                           options={
                                             {
                                               search:false,
@@ -97,7 +85,7 @@ headerStyle: {
                                              tableLayout: "fixed"
                                             }
                                           }
-                                          data={ user  }
+                                          data={cyclestatus}
                                         />
               </div>
    

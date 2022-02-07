@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 import "./style.css";
 import {useHistory} from 'react-router-dom'
 import moment from 'moment'
-import {CycleListDatatableComponent} from './CycleListDatatable.Component'
 import { DataGrid } from '@mui/x-data-grid';
 
 export const ListCycleComponent = (buttonVisible) => {

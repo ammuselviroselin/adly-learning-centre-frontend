@@ -28,9 +28,7 @@ export const CreateIndicativeCapRateHistory = () => {
           <br></br> <br></br> <br></br>
           <IndicativeCapRateHistoryForm buttonVisible="true"></IndicativeCapRateHistoryForm>
           <p className="user"><b> Edit Indicative Cap Rate </b></p>
-         { /* code commented not to have listitem of Indicative Cap Rate History
-          // <ListIndicativeCapRateHistoryComponent buttonVisible="true"></ListIndicativeCapRateHistoryComponent>
-         */}
+
           <ListIndicativeCapRateHistoryComponentDataTable search={'false'}></ListIndicativeCapRateHistoryComponentDataTable>
        </div> 
 

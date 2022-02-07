@@ -11,23 +11,15 @@ import {
 
 export const CycleTypeListDataTable = (props) => {
   const [, setUser] = useState();
-  // const [ProductData, setProductData] = useState([]);
-  // const [SelectProductType, setSelectProductType] = useState('');
   const { cycletype } = JSON.parse(
     JSON.stringify(useSelector((state) => state.cycleTypeSlice))
   );
-  
-
   console.log(cycletype);
   console.log(props.search);
   const [cycleData, setCycleData] = useState([]);
   const dispatch = useDispatch();
 
-  // const getProductData = useCallback(async() => {
-  //   const res = await axios.get("http://localhost:4000/product/")
-  //   const data = res.data
-  //   setProductData(data);
-  // }, []);
+
   const getcycletype = useCallback(
     async (data) => {
       dispatch(CycleTypeList()).then((data) => {
@@ -41,30 +33,19 @@ export const CycleTypeListDataTable = (props) => {
     getcycletype();
   }, [cycleData, getcycletype]);
 
-  // const SelectedProdductType=()=>{
-  //   const  options = () =>
-  //   ProductData.map(user => ({
-  //     label: user.Product,
-  //     value: user.Product
-  //   }));
   
-  //   return <Select 
-  //     placeholder={SelectProductType==='' ?"Select Product Type":SelectProductType} 
-  //      value={SelectProductType}
-  //       onChange={(value)=>{
-  //         setSelectProductType(value[0].value)
-  //         dispatch({ type: 'productType', payload: value[0].value})
-  //       }}
-  //        options={options()} />
-  //   }
 
   const columns = [
     props.search==='false'?  { title: "Select",render: rowData=>{ 
  
       return  <input onClick={()=>{
        // alert(rowData._id)
+       //       dispatch({ type: 'hyperlink', payload: true});
         dispatch({ type: 'seteditcycle', payload: rowData })
-  
+       
+             dispatch({ type: 'navigationtab', payload: 1});
+        
+          
       }} type="radio" value="Male" name="gender" />
     }}
     :{},
@@ -74,11 +55,17 @@ export const CycleTypeListDataTable = (props) => {
       field: "Description",
       render: (rowData) => (
         <a
-          href={`/cycle-types?cycleTypeDescription=${rowData.Description}&id=${rowData._id}`}
-          onClick={()=>{
+          href={`/cycle-types`}
+          
+          onClick={(event)=>{
             // alert(rowData._id)
+            
              dispatch({ type: 'seteditcycle', payload: rowData })
-       
+           
+             dispatch({ type: 'navigationtab', payload: 1});
+           
+         
+             event.preventDefault();
            }}
         >
           {rowData.Description}
@@ -126,7 +113,7 @@ export const CycleTypeListDataTable = (props) => {
     },
     {
       title: "ProductId",
-      field: 'ProductFamilyId',
+      field: 'ProductFamilybyname',
       cellStyle: {
         fontSize: "14px",
       },
@@ -155,19 +142,7 @@ export const CycleTypeListDataTable = (props) => {
               new Promise((resolve, reject) => {
                 setTimeout(() => {
                   rowData.Status = "Cancelled";
-                  // axios.put(
-                  //     "http://localhost:4000/availableCycleTypes/update/" +
-                  //       rowData._id,
-                  //     rowData
-                  //   )
-                  //   .then((res) => {
-                  //     if (res.status === 200) {
-                  //       toast.success(
-                  //         "Cancelled Cycle Types Successfully! , Cycle Type Description : " +
-                  //           rowData.Description
-                  //       );
-                  //     }
-                  //   });
+                
                   dispatch(EditCycleListType(rowData)).then((data) => {
                     setCycleData(JSON.parse(JSON.stringify([])));
                     if (data.payload === "OK") {
@@ -199,27 +174,7 @@ export const CycleTypeListDataTable = (props) => {
           },
         }}
         editable={{
-          // onRowUpdate: (newData, oldData) =>
-          // new Promise((resolve, reject) => {
-          //   setTimeout(() => {
-          //     const dataUpdate = [...user];
-          //   const index = oldData.tableData.id;
-
-          //     dataUpdate[index] = newData;
-          //     setUser(dataUpdate);
-
-          //     user[user.indexOf(oldData)] = newData;
-
-          //     axios.put('http://localhost:4000/availableCycleTypes/update/'+newData._id,newData)
-          //     .then(res=>{
-          //       if(res.status===200){
-          //       toast.success('Updated Cycle Types Successfully');
-          //       }
-          //     });
-
-          //     resolve();
-          //   }, 1000)
-          // }),
+    
           onRowUpdate: (newData, oldData) => {
             return new Promise((resolve, reject) => {
               setTimeout(() => {
@@ -238,27 +193,7 @@ export const CycleTypeListDataTable = (props) => {
               }, 2000);
             });
           },
-          //     onRowDelete:  (newData, oldData) =>
-          //     new Promise(resolve => {
-          //         setTimeout(() => {
-          //         //   user[user.indexOf(oldData)] = newData;
-          //         //   const dataDelete = [...user];
-
-          //         //   var elementPos = dataDelete.map(function(x) {return x._id; }).indexOf(newData._id);
-
-          //         //   dataDelete.splice(elementPos, 1);
-          //         //   setUser([...dataDelete]);
-
-          //             axios.delete(`http://localhost:4000/cycleList/delete/${newData._id}`)
-          //             .then(res=>{
-          //               if(res.status===200){
-
-          //                 toast.success('Deleted Cycle Successfully');
-          //               }
-          //             }).catch(err=>console.log(err));
-          //            resolve();
-          //     }, 1000);
-          // }),
+         
 
           onRowDelete: (oldData) => {
             return new Promise((resolve, reject) => {
